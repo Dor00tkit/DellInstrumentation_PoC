@@ -1,0 +1,88 @@
+;
+; DellInstrumentation.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=DellInstrumentation
+ClassGuid={E1C7DABE-63DE-4630-A4DE-A4ADC0503BE3}
+Provider=%ManufacturerName%
+CatalogFile=DellInstrumentation.cat
+DriverVer = 08/25/2023,2.8.9.4
+PnpLockdown=1
+[DestinationDirs]
+DefaultDestDir = 12
+DellInstrumentation_Device_CoInstaller_CopyFiles = 11
+
+; ================= Class section =====================
+
+[ClassInstall32]
+Addreg=DellInstrumentationClassReg
+
+[DellInstrumentationClassReg]
+HKR,,,0,%ClassName%
+HKR,,Icon,,-5
+HKR,,Security,,"D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;LA)"
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+DellInstrumentation.sys  = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NTamd64
+
+[Standard.NTamd64]
+%DellInstrumentation.DeviceDesc%=DellInstrumentation_Device, Root\DellInsDrv
+
+[DellInstrumentation_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+DellInstrumentation.sys
+
+;-------------- Service installation
+[DellInstrumentation_Device.NT.Services]
+AddService = DellInstrumentation,%SPSVCINST_ASSOCSERVICE%, DellInstrumentation_Service_Inst
+
+; -------------- DellInstrumentation driver install sections
+[DellInstrumentation_Service_Inst]
+DisplayName    = %DellInstrumentation.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\DellInstrumentation.sys
+
+;
+;--- DellInstrumentation_Device Coinstaller installation ------
+;
+
+[DellInstrumentation_Device.NT.CoInstallers]
+AddReg=DellInstrumentation_Device_CoInstaller_AddReg
+CopyFiles=DellInstrumentation_Device_CoInstaller_CopyFiles
+
+[DellInstrumentation_Device_CoInstaller_AddReg]
+;HKR,,Security,,"D:P(A;;GA;;;SY)(A;;GA;;;BA)(A;;GA;;;LA)"
+;
+
+[DellInstrumentation_Device_CoInstaller_CopyFiles]
+;
+
+
+[DellInstrumentation_Device.NT.Wdf]
+KmdfService =  DellInstrumentation, DellInstrumentation_wdfsect
+[DellInstrumentation_wdfsect]
+KmdfLibraryVersion = 1.15
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="Dell Technologies"
+ClassName="DellInstrumentation"
+DiskName = "Dell Instrumentation and Health"
+DellInstrumentation.DeviceDesc = "DellInstrumentation Device"
+DellInstrumentation.SVCDESC = "DellInstrumentation Service"
